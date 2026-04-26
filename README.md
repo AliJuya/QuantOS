@@ -1,26 +1,290 @@
 # QuantOS
 
-QuantOS starts from a kernel-first runtime and a deterministic event chain rather than from a backtester script. The current vertical slice is parquet-first and implements:
+QuantOS is a kernel-first, event-driven quantitative trading runtime built around deterministic replay, typed domain contracts, and backtest or paper or live parity.
 
-- deterministic parquet bar replay through a resolved local scan plan
-- typed `BarCloseEvent` dispatch through a synchronous event bus
-- append-only closed-bar rivers inside the market data store
-- incremental EMA cross alpha generation
-- portfolio target construction
-- pre-trade risk approval
-- simulated market execution with fee and slippage
-- accounting as the single source of truth for cash, positions, fees, and PnL
-- run artifact recording under `artifacts/runs/<run_id>`
+This public snapshot keeps the core system intact:
 
-This public snapshot intentionally exposes only:
+- deterministic market-data replay from parquet or csv
+- bounded market-data rivers and timeframe aggregation
+- typed event dispatch through a synchronous runtime
+- strategy, model, gate, portfolio, risk, execution, and accounting layers
+- backtest, paper, and live runner entry points
+- post-run analytics and trade visualization
+
+What is intentionally not public is the private alpha inventory. The repository exposes one example strategy and one strategy template, while keeping the stronger runtime, execution, and analytics stack visible.
+
+## Why This Repo Is Substantive
+
+QuantOS is not a script that loops over candles and prints PnL. The project is organized as a reusable operating layer for systematic trading research and runtime execution.
+
+Technical characteristics:
+
+- deterministic replay and reproducible run artifacts
+- explicit domain contracts for events, orders, fills, positions, and policies
+- market-data normalization and aggregation separated from strategy logic
+- portfolio targeting separated from risk approval and execution planning
+- accounting treated as the source of truth for equity, positions, fees, and PnL
+- shared runtime semantics across backtest, paper, and live modes
+- integration seams for models, gates, analytics, and visualization
+
+If someone is evaluating the engineering quality of the project, those boundaries matter more than the number of private strategies hidden behind them.
+
+## Public Surface
+
+The public repo intentionally exposes only these strategies:
 
 - `qcore.alpha.strategies.ema_cross.EmaCrossStrategy`
 - `qcore.alpha.strategies.strategy_template.StrategyTemplate`
 
-Private strategy packs, private configs, and local run artifacts are not included.
+The runtime around those strategies is much broader and includes:
 
-Run the day-one backtest:
+- `apps.backtester.main`
+- `apps.paper_trader.main`
+- `apps.live_trader.main`
+- `apps.trade_visualizer.main`
+- `qcore.models.vol.ewma_volatility.EwmaVolatilityModel`
+- `qcore.models.regime.ema_regime.EmaTrendRegimeModel`
+- `qcore.gates.model_alignment.ModelAlignmentGate`
+
+## Architecture At A Glance
+
+```text
+Market Data
+  -> Replay / Live Source
+  -> Normalization
+  -> Timeframe Aggregation
+  -> Market Store / Rivers
+  -> Strategy + Models
+  -> Gates
+  -> Portfolio Target Builder
+  -> Risk Manager
+  -> Execution Planner / Broker
+  -> Accounting Engine
+  -> Run Recorder / Reporter / Visualizer
+```
+
+The key design choice is that each layer owns a specific responsibility. Strategies do not place broker orders directly. Risk does not live inside alpha code. Accounting is not implicit. That is the difference between a research script and a platform.
+
+## What You Can Do With The Public Repo
+
+### Backtest
+
+Run deterministic backtests from local parquet or csv data using YAML configuration:
+
+```powershell
+py -3 -m apps.backtester.main --config configs/app/backtest_ema_cross.yaml --project-root .
+```
+
+The backtester writes structured artifacts under `artifacts/runs/<run_id>`, including:
+
+- `manifest.json`
+- `summary.json`
+- `fills.jsonl`
+- `trades.jsonl`
+- `ledger.jsonl`
+- `equity_curve.csv`
+- `equity_curve.png`
+- `sessions.csv`
+
+### Paper Runtime
+
+Run the paper trader through the same core runtime:
+
+```powershell
+py -3 -m apps.paper_trader.main --config configs/app/paper_ema_cross_simulator.yaml --project-root .
+```
+
+The shipped public config uses a scripted simulator feed so the mode is reproducible out of the box.
+
+### Live Runtime
+
+Run the live trader entry point:
+
+```powershell
+py -3 -m apps.live_trader.main --config configs/app/live_ema_cross_simulator.yaml --project-root .
+```
+
+The public config is simulator-based by default. The live runtime and Binance market-data adapter are still present, but the public repo does not ship private execution routing.
+
+### Trade Visualization
+
+Render trade-centric charts from a completed run:
+
+```powershell
+py -3 -m apps.trade_visualizer.main --run-dir artifacts/runs/<run_id> --max-trades 10 --chart-timeframe 1d --ema-stack 3 5
+```
+
+The visualizer can overlay EMA stacks and produce an indexed chart set from recorded trades.
+
+## Quick Start
+
+### 1. Create a virtual environment
+
+PowerShell:
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Bash:
 
 ```bash
-python -m apps.backtester.main --config configs/app/backtest_ema_cross.yaml --project-root .
+python3.12 -m venv .venv
+source .venv/bin/activate
 ```
+
+### 2. Install
+
+Base install:
+
+```bash
+pip install -e .
+```
+
+With test dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+With live-market-data extras:
+
+```bash
+pip install -e ".[live]"
+```
+
+### 3. Run the shipped backtest
+
+```powershell
+py -3 -m apps.backtester.main --config configs/app/backtest_ema_cross.yaml --project-root .
+```
+
+### 4. Run the shipped tests
+
+```powershell
+py -3 -m pytest
+```
+
+## Repository Layout
+
+```text
+QuantOS/
+|-- adapters/
+|   `-- exchanges/
+|-- apps/
+|   |-- backtester/
+|   |-- live_trader/
+|   |-- paper_trader/
+|   `-- trade_visualizer/
+|-- configs/
+|   `-- app/
+|-- docs/
+|-- qcore/
+|   |-- accounting/
+|   |-- alpha/
+|   |-- analytics/
+|   |-- data/
+|   |-- domain/
+|   |-- execution/
+|   |-- gates/
+|   |-- indicators/
+|   |-- kernel/
+|   |-- models/
+|   |-- portfolio/
+|   |-- registry/
+|   |-- risk/
+|   |-- services/
+|   `-- simulation/
+|-- scripts/
+|-- tests/
+|-- pyproject.toml
+`-- README.md
+```
+
+## Included Models And Gate
+
+The public snapshot includes a small but real model and gate path:
+
+- volatility model: EWMA realized volatility
+- regime model: EMA trend regime
+- gate: model-alignment gate with volatility cap and regime alignment checks
+
+That means the public example is not just strategy-only. It demonstrates how model outputs can flow into gate decisions before execution.
+
+## Data Expectations
+
+The default public backtest config uses a shipped fixture:
+
+- `tests/fixtures/data/ema_cross_sample_bars.parquet`
+
+For your own data, the parquet adapter expects explicit column mapping in config. The default example uses:
+
+- `timestamp`
+- `symbol`
+- `venue`
+- `timeframe`
+- `open`
+- `high`
+- `low`
+- `close`
+- `volume`
+
+Timeframe aggregation is handled inside the runtime, not inside strategy code.
+
+## Example Strategy Files
+
+Public strategy example:
+
+- `qcore/alpha/strategies/ema_cross.py`
+
+Public strategy template:
+
+- `qcore/alpha/strategies/strategy_template.py`
+
+The template is the intended starting point for new public strategies. It shows the contract that a strategy must satisfy without exposing private alpha logic.
+
+## Testing And Determinism
+
+The public repo ships unit, integration, and determinism coverage under `tests/`.
+
+Representative examples:
+
+- registry and component construction tests
+- replay and aggregation tests
+- accounting and execution tests
+- backtester smoke tests
+- paper and live runtime smoke tests
+- deterministic backtest regression checks
+
+This is an important part of the project. Quant infrastructure that cannot be tested deterministically is not credible.
+
+## What Is Intentionally Not Included
+
+- private strategy packs
+- proprietary research logic
+- trained or serialized model artifacts
+- local run results
+- internal workflow metadata
+- exchange order-routing infrastructure
+
+The public repo is meant to show the architecture and engineering quality of the system without disclosing private trading logic.
+
+## Suggested Entry Points
+
+If you want to inspect the system quickly, start here:
+
+- backtest CLI: `apps/backtester/main.py`
+- runtime builder: `qcore/services/app_builder/backtest.py`
+- replay runner: `qcore/simulation/backtest/runner.py`
+- market data engine: `qcore/data/engine.py`
+- accounting engine: `qcore/accounting/portfolio_state/engine.py`
+- strategy registry: `qcore/registry/strategies.py`
+- example alpha: `qcore/alpha/strategies/ema_cross.py`
+- visualization CLI: `apps/trade_visualizer/main.py`
+
+## Bottom Line
+
+QuantOS is a public systems repo, not a strategy dump. The strength of the project is the runtime architecture: deterministic replay, explicit contracts, separated layers, testing, analytics, and consistent execution semantics across modes.
+
+That is the part worth evaluating.
