@@ -180,6 +180,10 @@ QuantOS does not stop at signal generation. The public repo also exposes the pos
 
 That matters because research infrastructure is only useful if it makes results inspectable. A system that can replay, execute, account, report, and visualize is materially more valuable than one that only emits trades.
 
+Sample equity curve from the shipped public EMA-cross fixture backtest:
+
+![Sample equity curve](docs/sample_equity_curve.png)
+
 ## Quick Start
 
 ### 1. Create a virtual environment
