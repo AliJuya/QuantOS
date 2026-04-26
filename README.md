@@ -13,7 +13,7 @@ This public snapshot keeps the core system intact:
 
 What is intentionally not public is the private alpha inventory. The repository exposes one example strategy and one strategy template, while keeping the stronger runtime, execution, and analytics stack visible.
 
-![QuantOS runtime overview](docs/architecture/runtime_pipeline.svg)
+![QuantOS runtime overview](docs/architecture/runtime_pipeline.png)
 
 ## Why This Repo Is Substantive
 
