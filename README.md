@@ -1,6 +1,6 @@
 # QuantOS
 
-QuantOS is a kernel-first, event-driven quantitative trading runtime built around deterministic replay, typed domain contracts, and backtest or paper or live parity.
+QuantOS is a kernel-first, event-driven quantitative trading runtime built around deterministic replay, typed domain contracts, and backtest, paper, and live parity.
 
 This public snapshot keeps the core system intact:
 
@@ -12,6 +12,8 @@ This public snapshot keeps the core system intact:
 - post-run analytics and trade visualization
 
 What is intentionally not public is the private alpha inventory. The repository exposes one example strategy and one strategy template, while keeping the stronger runtime, execution, and analytics stack visible.
+
+![QuantOS runtime overview](docs/architecture/runtime_pipeline.svg)
 
 ## Why This Repo Is Substantive
 
@@ -46,22 +48,70 @@ The runtime around those strategies is much broader and includes:
 - `qcore.models.regime.ema_regime.EmaTrendRegimeModel`
 - `qcore.gates.model_alignment.ModelAlignmentGate`
 
-## Architecture At A Glance
+## Models, Gates, And Extension Seams
+
+This is one of the main reasons the repo is stronger than a simple strategy demo.
+
+QuantOS already ships:
+
+- a model registry at `qcore/registry/models.py`
+- a model runtime at `qcore/models/engine.py`
+- a model view/store path at `qcore/models/view.py` and `qcore/models/store.py`
+- a gate registry at `qcore/registry/gates.py`
+- a gate runtime at `qcore/gates/engine.py`
+
+The public snapshot includes a small but real example path:
+
+- volatility model: EWMA realized volatility
+- regime model: EMA trend regime
+- gate: model-alignment gate with regime and volatility checks
+
+The important point is architectural: richer models fit naturally into this system.
+
+Examples that could be dropped into the same runtime shape:
+
+- a more advanced regime engine
+- a volatility state model or vol-surface adapter
+- a structure or trend-quality model
+- suitability gates that approve or reject strategy signals based on model context
+
+Those extensions do not require rewriting the backtester. They fit the existing composition flow:
 
 ```text
-Market Data
-  -> Replay / Live Source
-  -> Normalization
-  -> Timeframe Aggregation
-  -> Market Store / Rivers
-  -> Strategy + Models
-  -> Gates
-  -> Portfolio Target Builder
-  -> Risk Manager
-  -> Execution Planner / Broker
-  -> Accounting Engine
-  -> Run Recorder / Reporter / Visualizer
+bar event -> model engine -> model store/view -> gate engine -> approved alpha -> portfolio/risk/execution
 ```
+
+That separation is already present in the public codebase.
+
+### Example config path
+
+The shipped public example already demonstrates model-plus-gate composition:
+
+```yaml
+models:
+  - kind: ewma_vol
+    model_id: volatility.ewma
+    timeframe: 1d
+    lookback: 5
+  - kind: ema_regime
+    model_id: regime.ema
+    timeframe: 1d
+    fast_period: 3
+    slow_period: 5
+
+gates:
+  - kind: model_alignment
+    gate_id: gate.model_alignment
+    timeframe: 1d
+    regime_model_id: regime.ema
+    volatility_model_id: volatility.ewma
+    require_regime_alignment: true
+    max_annualized_vol: 5.0
+```
+
+That means the repository is already demonstrating the correct seam for plugging in a stronger regime engine or volatility engine later.
+
+## Architecture At A Glance
 
 The key design choice is that each layer owns a specific responsibility. Strategies do not place broker orders directly. Risk does not live inside alpha code. Accounting is not implicit. That is the difference between a research script and a platform.
 
@@ -116,6 +166,20 @@ py -3 -m apps.trade_visualizer.main --run-dir artifacts/runs/<run_id> --max-trad
 
 The visualizer can overlay EMA stacks and produce an indexed chart set from recorded trades.
 
+## Visualization And Reporting
+
+QuantOS does not stop at signal generation. The public repo also exposes the post-run inspection path:
+
+- `summary.json`
+- `equity_curve.csv`
+- `equity_curve.png`
+- `months.csv`
+- `years.csv`
+- `sessions.csv`
+- trade-level charts through `apps.trade_visualizer.main`
+
+That matters because research infrastructure is only useful if it makes results inspectable. A system that can replay, execute, account, report, and visualize is materially more valuable than one that only emits trades.
+
 ## Quick Start
 
 ### 1. Create a virtual environment
@@ -152,6 +216,12 @@ With live-market-data extras:
 
 ```bash
 pip install -e ".[live]"
+```
+
+With visualization extras:
+
+```bash
+pip install -e ".[viz]"
 ```
 
 ### 3. Run the shipped backtest
@@ -243,6 +313,19 @@ Public strategy template:
 - `qcore/alpha/strategies/strategy_template.py`
 
 The template is the intended starting point for new public strategies. It shows the contract that a strategy must satisfy without exposing private alpha logic.
+
+## Strategy Development Path
+
+The public strategy surface is intentionally small, but it is not shallow.
+
+If you want to add a new strategy cleanly:
+
+1. copy `qcore/alpha/strategies/strategy_template.py`
+2. implement `on_bar_close()`
+3. register the strategy in `qcore/registry/strategies.py`
+4. add a config under `configs/app/`
+
+Because strategies sit on top of normalized market data and feed into the same downstream portfolio, risk, and execution path, the runtime remains stable even as alpha logic changes.
 
 ## Testing And Determinism
 

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">QuantOS Runtime Overview</title>
+  <desc id="desc">Diagram showing market data inputs flowing through the QuantOS runtime into models, strategies, gates, portfolio, risk, execution, accounting, and output artifacts.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 34px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 18px Arial, sans-serif; fill: #475569; }
+      .section { font: 700 22px Arial, sans-serif; fill: #0f172a; }
+      .label { font: 600 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 400 14px Arial, sans-serif; fill: #475569; }
+      .box { rx: 18; ry: 18; stroke-width: 2; }
+      .arrow { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrowHead); }
+      .callout { fill: #fff7ed; stroke: #fb923c; stroke-width: 2; rx: 16; ry: 16; }
+    </style>
+    <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="820"/>
+
+  <text class="title" x="60" y="70">QuantOS Runtime Overview</text>
+  <text class="subtitle" x="60" y="105">Kernel-first market-data replay and execution pipeline with explicit model and gate seams</text>
+
+  <text class="section" x="90" y="170">Inputs</text>
+  <text class="section" x="560" y="170">Core Runtime</text>
+  <text class="section" x="1080" y="170">Outputs</text>
+
+  <rect class="box" x="60" y="210" width="280" height="88" fill="#dbeafe" stroke="#60a5fa"/>
+  <text class="label" x="90" y="248">Replay Sources</text>
+  <text class="small" x="90" y="274">parquet / csv bars, ticks, trades</text>
+
+  <rect class="box" x="60" y="326" width="280" height="88" fill="#dcfce7" stroke="#4ade80"/>
+  <text class="label" x="90" y="364">Live Sources</text>
+  <text class="small" x="90" y="390">simulator and exchange adapters</text>
+
+  <rect class="box" x="60" y="442" width="280" height="88" fill="#fef3c7" stroke="#f59e0b"/>
+  <text class="label" x="90" y="480">Config Layer</text>
+  <text class="small" x="90" y="506">YAML app configs and registries</text>
+
+  <rect class="box" x="430" y="210" width="420" height="74" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="label" x="460" y="255">MarketDataEngine</text>
+  <text class="small" x="650" y="255">normalization, aggregation, rivers, calendar alignment</text>
+
+  <rect class="box" x="430" y="308" width="420" height="74" fill="#f5f3ff" stroke="#a78bfa"/>
+  <text class="label" x="460" y="353">ModelEngine</text>
+  <text class="small" x="650" y="353">volatility, regime, future custom models</text>
+
+  <rect class="box" x="430" y="406" width="420" height="74" fill="#eef2ff" stroke="#818cf8"/>
+  <text class="label" x="460" y="451">Strategies</text>
+  <text class="small" x="650" y="451">public EMA example plus strategy template</text>
+
+  <rect class="box" x="430" y="504" width="420" height="74" fill="#f0fdf4" stroke="#4ade80"/>
+  <text class="label" x="460" y="549">GateEngine</text>
+  <text class="small" x="650" y="549">model alignment today, stronger suitability gates later</text>
+
+  <rect class="box" x="430" y="602" width="420" height="74" fill="#fff7ed" stroke="#fb923c"/>
+  <text class="label" x="460" y="647">Portfolio • Risk • Execution • Accounting</text>
+  <text class="small" x="650" y="647">targets, pre-trade checks, broker simulation, PnL truth</text>
+
+  <rect class="box" x="980" y="210" width="320" height="96" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="label" x="1010" y="248">Run Artifacts</text>
+  <text class="small" x="1010" y="274">manifest.json, summary.json, fills.jsonl,</text>
+  <text class="small" x="1010" y="296">trades.jsonl, equity curves, session stats</text>
+
+  <rect class="box" x="980" y="346" width="320" height="96" fill="#ecfeff" stroke="#22d3ee"/>
+  <text class="label" x="1010" y="384">Visualization</text>
+  <text class="small" x="1010" y="410">trade charts, EMA overlays, context panels,</text>
+  <text class="small" x="1010" y="432">post-run inspection workflow</text>
+
+  <rect class="box" x="980" y="482" width="320" height="96" fill="#eef2ff" stroke="#818cf8"/>
+  <text class="label" x="1010" y="520">Runtime Modes</text>
+  <text class="small" x="1010" y="546">backtest, paper, live</text>
+
+  <path class="arrow" d="M 340 254 C 380 254, 390 247, 430 247"/>
+  <path class="arrow" d="M 340 370 C 380 370, 390 247, 430 247"/>
+  <path class="arrow" d="M 340 486 C 380 486, 390 247, 430 247"/>
+
+  <path class="arrow" d="M 640 284 L 640 308"/>
+  <path class="arrow" d="M 640 382 L 640 406"/>
+  <path class="arrow" d="M 640 480 L 640 504"/>
+  <path class="arrow" d="M 640 578 L 640 602"/>
+
+  <path class="arrow" d="M 850 247 C 910 247, 920 258, 980 258"/>
+  <path class="arrow" d="M 850 353 C 910 353, 920 394, 980 394"/>
+  <path class="arrow" d="M 850 639 C 910 639, 920 530, 980 530"/>
+
+  <rect class="callout" x="980" y="630" width="320" height="112"/>
+  <text class="label" x="1010" y="668">Extension Seams</text>
+  <text class="small" x="1010" y="694">Custom regime engines, volatility models,</text>
+  <text class="small" x="1010" y="716">structure models, and suitability gates can</text>
+  <text class="small" x="1010" y="738">slot into the registry-and-engine path.</text>
+
+  <text class="small" x="60" y="785">Public repo surface is intentionally limited on alpha logic, not on runtime architecture.</text>
+</svg>

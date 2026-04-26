@@ -20,6 +20,10 @@ dev = [
 live = [
     "websockets>=12.0",
 ]
+viz = [
+    "pandas>=2.2.0",
+    "matplotlib>=3.8.0",
+]
 
 [project.scripts]
 quantos-backtest = "apps.backtester.main:main"
