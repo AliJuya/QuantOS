@@ -1,0 +1,2 @@
+"""QuantOS applications."""
+

@@ -1,0 +1,80 @@
+run:
+  run_id: null
+  artifacts_root: artifacts/runs
+
+data:
+  adapter: parquet
+  input_mode: bars
+  source_timeframe: 1d
+  aggregate_timeframes: []
+  river_maxlen: 50000
+  paths:
+    - tests/fixtures/data/ema_cross_sample_bars.parquet
+  timestamp_is: close
+  batch_size: 1024
+  columns:
+    timestamp: timestamp
+    symbol: symbol
+    venue: venue
+    timeframe: timeframe
+    open: open
+    high: high
+    low: low
+    close: close
+    volume: volume
+
+strategies:
+  - kind: ema_cross
+    strategy_id: ema_cross_v1
+    input_timeframe: 1d
+    short_period: 3
+    long_period: 5
+    signal_horizon: 1d
+
+models:
+  - kind: ewma_vol
+    model_id: volatility.ewma
+    timeframe: 1d
+    lookback: 5
+    annualization_factor: 365
+  - kind: ema_regime
+    model_id: regime.ema
+    timeframe: 1d
+    fast_period: 3
+    slow_period: 5
+
+gates:
+  - kind: model_alignment
+    gate_id: gate.model_alignment
+    timeframe: 1d
+    regime_model_id: regime.ema
+    volatility_model_id: volatility.ewma
+    require_regime_alignment: true
+    max_annualized_vol: 5.0
+    allow_unready: true
+
+portfolio:
+  starting_cash: 100000
+  base_currency: USD
+  target_notional_fraction: 0.50
+  quantity_step: 0.0001
+
+risk:
+  kind: basic
+  max_abs_position_quantity: 5000
+  max_abs_notional: 1000000
+  allow_short: true
+
+execution:
+  planner: basic
+  broker: simulated
+  venue: SIM
+  fee_bps: 5
+  slippage_bps: 2
+  min_trade_quantity: 0.0001
+
+calendar:
+  kind: always_open
+  calendar_id: crypto_24x7
+  timezone: UTC
+  session_label: all_session
