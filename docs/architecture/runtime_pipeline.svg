@@ -1,90 +1,120 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860" role="img" aria-labelledby="title desc">
-  <title id="title">QuantOS Runtime Pipeline</title>
-  <desc id="desc">A simplified QuantOS architecture diagram showing grouped inputs, the main runtime pipeline, grouped outputs, and extension seams.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="680" viewBox="0 0 1400 680" role="img" aria-labelledby="title desc">
+  <title id="title">QuantOS Runtime Overview</title>
+  <desc id="desc">QuantOS architecture: inputs feed MarketDataEngine through GateEngine to Portfolio and outputs.</desc>
   <defs>
     <style>
+      text { font-family: Arial, sans-serif; }
       .bg { fill: #f8fafc; }
-      .title { font: 700 34px Arial, sans-serif; fill: #0f172a; }
-      .subtitle { font: 400 18px Arial, sans-serif; fill: #475569; }
-      .section { font: 700 20px Arial, sans-serif; fill: #0f172a; }
-      .label { font: 700 17px Arial, sans-serif; fill: #0f172a; }
-      .body { font: 400 14px Arial, sans-serif; fill: #334155; }
-      .mono { font: 600 14px Arial, sans-serif; fill: #1e293b; }
-      .box { rx: 18; ry: 18; stroke-width: 2; }
-      .arrow { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrowHead); }
-      .note { font: 600 14px Arial, sans-serif; fill: #7c2d12; }
+      .title-t { font-size: 28px; font-weight: 700; fill: #0f172a; }
+      .sub-t { font-size: 15px; fill: #64748b; }
+      .sec-h { font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .lbl { font-size: 15px; font-weight: 700; fill: #1e293b; }
+      .body { font-size: 13px; fill: #475569; }
+      .div { stroke: #e2e8f0; stroke-width: 1; }
+      .arr { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#ah); }
+      .note { font-size: 12px; fill: #94a3b8; font-style: italic; }
     </style>
-    <marker id="arrowHead" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    <marker id="ah" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#64748b"/>
     </marker>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1400" height="860"/>
+  <rect class="bg" width="1400" height="680"/>
 
-  <text class="title" x="60" y="64">QuantOS Runtime Pipeline</text>
-  <text class="subtitle" x="60" y="96">Deterministic replay, explicit model and gate seams, and backtest or paper or live parity</text>
+  <!-- Title -->
+  <text class="title-t" x="60" y="52">QuantOS Runtime Overview</text>
+  <text class="sub-t" x="60" y="76">Kernel-first market-data replay and execution pipeline with explicit model and gate seams</text>
 
-  <text class="section" x="80" y="150">Inputs</text>
-  <text class="section" x="500" y="150">Core Runtime</text>
-  <text class="section" x="1080" y="150">Outputs</text>
+  <!-- Section headers -->
+  <text class="sec-h" text-anchor="middle" x="185" y="118">Inputs</text>
+  <text class="sec-h" text-anchor="middle" x="590" y="118">Core Runtime</text>
+  <text class="sec-h" text-anchor="middle" x="1105" y="118">Outputs</text>
 
-  <rect class="box" x="60" y="180" width="300" height="210" fill="#eef6ff" stroke="#60a5fa"/>
-  <text class="label" x="90" y="220">Market Inputs</text>
-  <text class="body" x="90" y="255">Replay data</text>
-  <text class="body" x="210" y="255">parquet and csv bars</text>
-  <text class="body" x="90" y="290">Live data</text>
-  <text class="body" x="210" y="290">simulator and exchange adapters</text>
-  <text class="body" x="90" y="325">Configuration</text>
-  <text class="body" x="210" y="325">YAML app configs and registries</text>
-  <text class="body" x="90" y="365">Goal</text>
-  <text class="body" x="210" y="365">feed one normalized runtime path</text>
+  <!-- ── INPUT BOXES ── -->
 
-  <rect class="box" x="450" y="180" width="420" height="78" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="label" x="480" y="214">1. MarketDataEngine</text>
-  <text class="body" x="480" y="240">normalization, calendars, aggregation, bounded rivers</text>
+  <!-- Replay Sources -->
+  <rect x="40" y="138" width="285" height="105" rx="12" fill="#dbeafe" stroke="#93c5fd" stroke-width="2"/>
+  <text class="lbl" x="62" y="168">Replay Sources</text>
+  <text class="body" x="62" y="190">parquet / csv bars, ticks, trades</text>
+  <text class="body" x="62" y="210">historical data files</text>
 
-  <rect class="box" x="450" y="282" width="420" height="78" fill="#f5f3ff" stroke="#a78bfa"/>
-  <text class="label" x="480" y="316">2. ModelEngine</text>
-  <text class="body" x="480" y="342">volatility, regime, and future custom models</text>
+  <!-- Live Sources -->
+  <rect x="40" y="257" width="285" height="95" rx="12" fill="#dcfce7" stroke="#86efac" stroke-width="2"/>
+  <text class="lbl" x="62" y="287">Live Sources</text>
+  <text class="body" x="62" y="309">simulator adapter</text>
+  <text class="body" x="62" y="329">exchange adapters</text>
 
-  <rect class="box" x="450" y="384" width="420" height="78" fill="#eef2ff" stroke="#818cf8"/>
-  <text class="label" x="480" y="418">3. Strategies</text>
-  <text class="body" x="480" y="444">public EMA example and public strategy template</text>
+  <!-- Config Layer -->
+  <rect x="40" y="366" width="285" height="88" rx="12" fill="#fef9c3" stroke="#fde68a" stroke-width="2"/>
+  <text class="lbl" x="62" y="396">Config Layer</text>
+  <text class="body" x="62" y="418">YAML app configs</text>
+  <text class="body" x="62" y="438">and registries</text>
 
-  <rect class="box" x="450" y="486" width="420" height="78" fill="#f0fdf4" stroke="#4ade80"/>
-  <text class="label" x="480" y="520">4. GateEngine</text>
-  <text class="body" x="480" y="546">model alignment now, richer suitability gates later</text>
+  <!-- ── CORE RUNTIME BOX ── -->
+  <rect x="375" y="138" width="450" height="355" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
 
-  <rect class="box" x="450" y="588" width="420" height="92" fill="#fff7ed" stroke="#fb923c"/>
-  <text class="label" x="480" y="622">5. Portfolio, Risk, Execution, Accounting</text>
-  <text class="body" x="480" y="648">targets, approval, fills, broker simulation, equity, PnL</text>
+  <!-- Dividers -->
+  <line class="div" x1="377" y1="209" x2="823" y2="209"/>
+  <line class="div" x1="377" y1="280" x2="823" y2="280"/>
+  <line class="div" x1="377" y1="351" x2="823" y2="351"/>
+  <line class="div" x1="377" y1="422" x2="823" y2="422"/>
 
-  <rect class="box" x="1030" y="180" width="310" height="260" fill="#f8fafc" stroke="#94a3b8"/>
-  <text class="label" x="1060" y="220">Run Outputs</text>
-  <text class="body" x="1060" y="255">Artifacts</text>
-  <text class="body" x="1165" y="255">manifest, summary, fills, trades</text>
-  <text class="body" x="1060" y="290">Reporting</text>
-  <text class="body" x="1165" y="290">equity curve, months, years, sessions</text>
-  <text class="body" x="1060" y="325">Inspection</text>
-  <text class="body" x="1165" y="325">trade charts and overlays</text>
-  <text class="body" x="1060" y="360">Modes</text>
-  <text class="body" x="1165" y="360">backtest, paper, live</text>
-  <text class="body" x="1060" y="400">Result</text>
-  <text class="body" x="1165" y="400">one consistent runtime contract</text>
+  <!-- 1. MarketDataEngine -->
+  <text class="lbl" x="397" y="166">MarketDataEngine</text>
+  <text class="body" x="397" y="189">normalization, aggregation, rivers, calendars</text>
 
-  <rect class="box" x="1030" y="500" width="310" height="150" fill="#fff7ed" stroke="#fb923c"/>
-  <text class="label" x="1060" y="538">Extension Seams</text>
-  <text class="body" x="1060" y="572">Stronger regime engines, volatility models,</text>
-  <text class="body" x="1060" y="598">structure models, and suitability gates</text>
-  <text class="body" x="1060" y="624">fit the existing registry-and-engine path.</text>
+  <!-- 2. ModelEngine -->
+  <text class="lbl" x="397" y="237">ModelEngine</text>
+  <text class="body" x="397" y="260">volatility, regime, custom model plugins</text>
 
-  <path class="arrow" d="M 360 285 C 400 285, 410 219, 450 219"/>
-  <path class="arrow" d="M 660 258 L 660 282"/>
-  <path class="arrow" d="M 660 360 L 660 384"/>
-  <path class="arrow" d="M 660 462 L 660 486"/>
-  <path class="arrow" d="M 660 564 L 660 588"/>
-  <path class="arrow" d="M 870 634 C 940 634, 960 310, 1030 310"/>
+  <!-- 3. Strategies -->
+  <text class="lbl" x="397" y="308">Strategies</text>
+  <text class="body" x="397" y="331">public EMA example and strategy template</text>
 
-  <text class="mono" x="430" y="735">bar event -&gt; model engine -&gt; model store/view -&gt; gate engine -&gt; approved alpha -&gt; portfolio/risk/execution</text>
-  <text class="note" x="60" y="800">Public repo surface is intentionally limited on private alpha logic, not on runtime architecture.</text>
+  <!-- 4. GateEngine -->
+  <text class="lbl" x="397" y="379">GateEngine</text>
+  <text class="body" x="397" y="402">model alignment, suitability gates</text>
+
+  <!-- 5. Portfolio · Risk · Execution · Accounting -->
+  <text class="lbl" x="397" y="450">Portfolio · Risk · Execution · Accounting</text>
+  <text class="body" x="397" y="473">targets, risk checks, fills, PnL, equity tracking</text>
+
+  <!-- ── OUTPUT BOXES ── -->
+
+  <!-- Run Artifacts -->
+  <rect x="875" y="138" width="480" height="105" rx="12" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
+  <text class="lbl" x="897" y="168">Run Artifacts</text>
+  <text class="body" x="897" y="190">manifest.json, summary.json, fills.jsonl</text>
+  <text class="body" x="897" y="210">trades.jsonl, equity curves, session stats</text>
+
+  <!-- Visualization -->
+  <rect x="875" y="257" width="480" height="95" rx="12" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
+  <text class="lbl" x="897" y="287">Visualization</text>
+  <text class="body" x="897" y="309">trade charts, EMA overlays, context panels</text>
+  <text class="body" x="897" y="329">post-run inspection workflow</text>
+
+  <!-- Runtime Modes -->
+  <rect x="875" y="366" width="480" height="75" rx="12" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2"/>
+  <text class="lbl" x="897" y="396">Runtime Modes</text>
+  <text class="body" x="897" y="418">backtest, paper, live</text>
+
+  <!-- Extension Seams -->
+  <rect x="875" y="455" width="480" height="100" rx="12" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="lbl" x="897" y="485">Extension Seams</text>
+  <text class="body" x="897" y="507">Custom regime, volatility, and structure models</text>
+  <text class="body" x="897" y="527">slot into the existing registry-and-engine path.</text>
+
+  <!-- ── ARROWS: Inputs → Core Runtime ── -->
+  <path class="arr" d="M 325 190 C 348 190 358 173 375 173"/>
+  <path class="arr" d="M 325 304 C 348 304 358 245 375 245"/>
+  <path class="arr" d="M 325 410 C 348 410 358 387 375 387"/>
+
+  <!-- ── ARROWS: Core Runtime → Outputs ── -->
+  <path class="arr" d="M 825 190 C 848 190 858 190 875 190"/>
+  <path class="arr" d="M 825 304 C 848 304 858 304 875 304"/>
+  <path class="arr" d="M 825 430 C 848 430 858 403 875 403"/>
+  <path class="arr" d="M 825 470 C 850 470 860 505 875 505"/>
+
+  <!-- Note -->
+  <text class="note" x="60" y="645">Public repo surface is intentionally limited on alpha logic, not on runtime architecture.</text>
 </svg>
